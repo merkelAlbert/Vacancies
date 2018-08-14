@@ -1,0 +1,17 @@
+@using Vacancies.DAL.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model IEnumerable<Vacancy>
+<link href="~/css/Styles.css" rel="stylesheet">
+
+<div class="button"><a asp-controller="Vacancies" asp-action="Update">Обновить базу</a></div>
+<form method="post" asp-action="FindVacancies" asp-controller="Vacancies">
+    <input  name="SearchString" type="text"/>
+    <input type="submit" value="Найти"/>
+</form>
+<div>
+    @foreach (var vacancy in Model)
+    {
+        @Html.Partial("~/Views/Vacancies/Vacancy.cshtml", vacancy)
+        
+    }
+</div>

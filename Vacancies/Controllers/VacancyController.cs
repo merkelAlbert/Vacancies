@@ -24,44 +24,36 @@ namespace Vacancies.Controllers
             _parsingService = parsingService;
         }
 
-        [HttpGet]
-        public IEnumerable<Vacancy> Get()
-        {
-            return _databaseContext.Vacancies;
-        }
 
         [HttpGet]
-        [Route("Update")]
-        public async Task<List<Vacancy>> Update()
+        [Route("update/")]
+        public async Task<IActionResult> Update()
         {
             List<Vacancy> toDelete = _databaseContext.Vacancies.ToList();
             _databaseContext.RemoveRange(toDelete);
             _databaseContext.SaveChanges();
-            
+
             List<Vacancy> vacancies = await _parsingService.GetVacancies(Url);
             await _databaseContext.Vacancies.AddRangeAsync(vacancies);
             await _databaseContext.SaveChangesAsync();
-            return vacancies;
+            return RedirectToAction("Index", "Home");
         }
-        /*[HttpGet("{id}")]
-        public string Get(G id)
-        {
-            return "value";
-        }*/
 
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Route("search/")]
+        public IActionResult FindVacancies(string searchString)
         {
-        }
+            if (searchString == null)
+                searchString = "";
+            var vacancies = _databaseContext.Vacancies.Where(
+                x => x.Title.ToLower().Contains(searchString.ToLower())
+                     || x.Company.ToLower().Contains(searchString.ToLower())
+                     || x.Description.ToLower().Contains(searchString.ToLower())
+                     || x.Requirements.ToLower().Contains(searchString.ToLower())
+                     || x.Salary.ToLower().Contains(searchString.ToLower())).ToList();
 
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
 
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return View("Finded", vacancies);
         }
     }
 }
